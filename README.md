@@ -224,6 +224,22 @@ docker compose run --rm php sh -c 'mkdir -p var/cache var/log && chmod -R 777 va
 
 Ensure the `API_KEY` header is sent. Nginx is configured to pass headers with underscores (`API_KEY`).
 
+**`make db-seed` fails with duplicate entry (ERROR 1062)**
+
+If seeding fails with an error like:
+
+```text
+ERROR 1062 (23000): Duplicate entry 'WIDGET-A' for key 'UNIQ_B3BA5A5AF9038C4'
+```
+
+The sample data was already imported. `data/seed.sql` uses plain `INSERT` statements and cannot be run twice on the same database.
+
+Reset the database and import fresh data:
+
+```bash
+make db-reset
+```
+
 **Re-init Symfony from scratch**
 
 Remove `composer.json`, `vendor/`, and Symfony directories, then run `make init` again.
