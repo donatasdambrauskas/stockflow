@@ -1,0 +1,7 @@
+.git
+.idea
+var/
+vendor/
+.env
+.env.local
+.env.*.local
