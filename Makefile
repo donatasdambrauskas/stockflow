@@ -2,6 +2,8 @@
 
 DOCKER_COMPOSE := docker compose
 PHP_SERVICE := php
+TEST_DATABASE_URL := mysql://root:test@mysql-test:3306/stockflow?serverVersion=8.0&charset=utf8mb4
+TEST_ENV := -e APP_ENV=test -e 'DATABASE_URL=$(TEST_DATABASE_URL)'
 
 init: .env
 	$(DOCKER_COMPOSE) build
@@ -54,8 +56,15 @@ db-reset: .env
 	$(MAKE) db-migrate
 	$(MAKE) db-seed
 
+test-db-setup:
+	$(DOCKER_COMPOSE) up -d --wait mysql-test
+	$(DOCKER_COMPOSE) run --rm --no-deps --user www-data $(TEST_ENV) $(PHP_SERVICE) sh -c '\
+		php bin/console doctrine:database:create --if-not-exists --no-interaction && \
+		php bin/console doctrine:migrations:migrate --no-interaction'
+
 test:
-	$(DOCKER_COMPOSE) run --rm --user www-data $(PHP_SERVICE) php bin/phpunit
+	$(MAKE) test-db-setup
+	$(DOCKER_COMPOSE) run --rm --no-deps --user www-data $(TEST_ENV) $(PHP_SERVICE) php bin/phpunit
 
 %:
 	@:

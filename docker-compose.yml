@@ -23,6 +23,20 @@ services:
     depends_on:
       - php
 
+  mysql-test:
+    image: mysql:8
+    tmpfs:
+      - /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: stockflow
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ptest"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   database:
     image: mariadb:latest
     ports:
